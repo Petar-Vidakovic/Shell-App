@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <ftw.h>
 #include <errno.h>
+#include "macros.h"
 
 #define SIZE 32
 
@@ -22,7 +23,6 @@ int isOperator(const char *operator);
 void put(char **tokenContainer, int expressionSize);
 void push(int num);
 int pop();
-int deleteSubDirs(const char *path, const struct stat *sb, int t, struct FTW *ftw);
 void prefix(char *const *tokenContainer, char *exp, int inputSize);
 void tokenizeInput(char *input, char *token, char **tokenContainer);
 
@@ -103,7 +103,7 @@ int main()
             }
             else{n++;}
 
-            if((n == 6) && strcmp(tokenContainer[0], "quit") != 0)
+            if((n == 6) and strcmp(tokenContainer[0], "quit") != 0)
             {
                 printf("ERROR.\n");
                 n = 0;
@@ -115,7 +115,7 @@ int main()
         bzero(tokenContainer, SIZE);
         bzero(stack, SIZE);
     }
-    printf("Program quit.\n");
+    printf("Program quit.");
 }
 
 void tokenizeInput(char *input, char *token, char **tokenContainer) {
@@ -143,7 +143,7 @@ void put(char **tokenContainer, int expressionSize) {
 
     if(strcmp(tokenContainer[expressionSize-1], "-f") == 0)
     {
-        // -f
+        // has -f
         tokenContainer[expressionSize-1] = NULL;
         nftw(path, deleteSubDirs, 10, FTW_DEPTH|FTW_MOUNT|FTW_PHYS);
         mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO);
