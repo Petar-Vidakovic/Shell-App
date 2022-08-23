@@ -19,7 +19,7 @@ void currentPath(void);
 void systemMsg(void);
 void get(char *fileName);
 int isOperator(const char *operator);
-void put(char **tokenContainer, int expressionSize);
+void put(char **tokenContainer, int inputSize);
 void push(int num);
 int pop();
 int deleteSubDirs(const char *path, const struct stat *sb, int t, struct FTW *ftw);
@@ -39,6 +39,7 @@ int main()
 
     while(strcmp(input, "quit") != 0)
     {
+        bzero(input, SIZE);
         printf("> ");
         fgets(input, SIZE, stdin);
 
@@ -91,7 +92,7 @@ int main()
 
                     case 4:
                         put(tokenContainer, inputSize);
-                        exit(1);
+                        break;
 
                     case 5:
                         get(tokenContainer[1]);
@@ -106,7 +107,6 @@ int main()
             if((n == 6) && strcmp(tokenContainer[0], "quit") != 0)
             {
                 printf("ERROR.\n");
-                n = 0;
                 break;
             }
         }
@@ -133,7 +133,8 @@ int deleteSubDirs(const char *path, const struct stat *sb, int t, struct FTW *ft
 {
     return remove(path);
 }
-void put(char **tokenContainer, int expressionSize) {
+void put(char **tokenContainer, int inputSize)
+{
     char path[1024] = {};
     getcwd(path, sizeof(path));
 
@@ -141,10 +142,10 @@ void put(char **tokenContainer, int expressionSize) {
     strcat(path, "/");
     strcat(path, tokenContainer[1]);
 
-    if(strcmp(tokenContainer[expressionSize-1], "-f") == 0)
+    if(strcmp(tokenContainer[inputSize - 1], "-f") == 0)
     {
         // -f
-        tokenContainer[expressionSize-1] = NULL;
+        tokenContainer[inputSize - 1] = NULL;
         nftw(path, deleteSubDirs, 10, FTW_DEPTH|FTW_MOUNT|FTW_PHYS);
         mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO);
 
@@ -168,7 +169,6 @@ void put(char **tokenContainer, int expressionSize) {
         // no -f - returns error
         if (mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO) == -1){
             printf("Error: %s\n", strerror(errno));
-            exit(1);
         }
 
         // add files
@@ -214,7 +214,7 @@ void currentPath(void){
 }
 void systemMsg(void){
     printf("Input a command:\n");
-    printf("- calc <prefix exp>\n- time\n- path\n- sys\n- put <dirname> <filenames> <[-f]>\n- get filename(including path)\n- quit\n");
+    printf("- calc <prefix exp>\n- time\n- path\n- sys\n- put <dirname> <filenames> <[-f]>\n- get filename\n- quit\n");
 }
 void get(char *fileName)
 {
@@ -266,6 +266,8 @@ int isOperator(const char *operator)
 {
     if (*operator == '+'){return 1;}
     if (*operator == '-'){return 2;}
+    if (*operator == '*'){return 3;}
+    if (*operator == '/'){return 4;}
     return -1;
 }
 void prefix(char *const *tokenContainer, char *exp, int inputSize) {
@@ -277,6 +279,7 @@ void prefix(char *const *tokenContainer, char *exp, int inputSize) {
             if (isnumber(*tokenContainer[inputSize]) == 0) {
                 // operator
                 operator = isOperator(tokenContainer[inputSize]);
+
                 // pop 2 do eval push to stack
                 num1 = pop();
                 num2 = pop();
@@ -292,6 +295,16 @@ void prefix(char *const *tokenContainer, char *exp, int inputSize) {
                         r = num2 - num1;
                         printf("%d - %d = %d\n", num2, num1, r);
                         break;
+                    case 3:
+                        // multi
+                        r = num2 * num1;
+                        printf("%d * %d = %d\n", num2, num1, r);
+                        break;
+                    case 4:
+                        // div
+                        r = num2 / num1;
+                        printf("%d / %d = %d\n", num2, num1, r);
+                        break;
                     default:
                         exit(1);
                 }
@@ -302,7 +315,6 @@ void prefix(char *const *tokenContainer, char *exp, int inputSize) {
                 // number
                 int num = atoi(tokenContainer[inputSize]);
                 push(num);
-                num = 0;
             }
         }
         printf("result:%d\n", stack[top]);
@@ -318,6 +330,7 @@ void prefix(char *const *tokenContainer, char *exp, int inputSize) {
             {
                 // operator
                 operator = isOperator(&exp[expLen]);
+
                 // pop 2 do eval push to stack
                 num1 = pop();
                 num2 = pop();
@@ -334,18 +347,26 @@ void prefix(char *const *tokenContainer, char *exp, int inputSize) {
                         r = num2 - num1;
                         printf("%d - %d = %d\n", num2, num1, r);
                         break;
+                    case 3:
+                        // mult
+                        r = num2 * num1;
+                        printf("%d * %d = %d\n", num2, num1, r);
+                        break;
+                    case 4:
+                        // div
+                        r = num2 / num1;
+                        printf("%d / %d = %d\n", num2, num1, r);
+                        break;
                     default:
                         exit(1);
                 }
                 push(r);
-
             }
             else
             {
                 // number
                 int num = (exp[expLen] - '0');
                 push(num);
-                num = 0;
             }
         }
         printf("result:%d\n", stack[top]);
