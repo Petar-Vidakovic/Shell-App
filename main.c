@@ -43,9 +43,6 @@ int main()
 		printf("> ");
 		fgets(input, SIZE, stdin);
 		
-		// ensure single inputs works
-		input[strcspn(input, "\n")] = 0;
-		
 		// tokenize string and fill token array
 		tokenizeInput(input, token, tokenContainer);
 		
@@ -63,7 +60,8 @@ int main()
 			{
 				switch(i)
 				{
-				case 0: prefix(tokenContainer, expression, inputSize);
+				case 0:
+					prefix(tokenContainer, expression, inputSize);
 					break;
 				
 				case 1:
@@ -93,10 +91,12 @@ int main()
 					{systemInfo();}
 					break;
 				
-				case 4: put(tokenContainer, inputSize);
+				case 4:
+					put(tokenContainer, inputSize);
 					break;
 				
-				case 5: get(tokenContainer[1]);
+				case 5:
+					get(tokenContainer[1]);
 					break;
 				
 				default: exit(-1);
@@ -121,6 +121,7 @@ int main()
 
 void tokenizeInput(char* input, char* token, char** tokenContainer)
 {
+	input[strcspn(input, "\n")] = 0;
 	token = strtok(input, " ");
 	int k = 0;
 	while(token != NULL)
@@ -281,37 +282,30 @@ void prefix(char* const* tokenContainer, char* exp, int inputSize)
 	int num1 = 0, num2 = 0, operator = 0, r = 0;
 	if(inputSize > 2)
 	{
-		// prefix eval on expression with spaces
 		while(inputSize --> 1)
 		{
 			if(isnumber(*tokenContainer[inputSize]) == 0)
 			{
-				// operator
 				operator = isOperator(tokenContainer[inputSize]);
 				
-				// pop 2 do eval push to stack
 				num1 = pop();
 				num2 = pop();
 				
 				switch(operator)
 				{
 				case 1:
-					// add
 					r = num2 + num1;
 					printf("%d + %d = %d\n", num2, num1, r);
 					break;
 				case 2:
-					// sub
 					r = num2 - num1;
 					printf("%d - %d = %d\n", num2, num1, r);
 					break;
 				case 3:
-					// multi
 					r = num2 * num1;
 					printf("%d * %d = %d\n", num2, num1, r);
 					break;
 				case 4:
-					// div
 					r = num2 / num1;
 					printf("%d / %d = %d\n", num2, num1, r);
 					break;
@@ -321,7 +315,6 @@ void prefix(char* const* tokenContainer, char* exp, int inputSize)
 			}
 			else
 			{
-				// number
 				int num = atoi(tokenContainer[inputSize]);
 				push(num);
 			}
@@ -333,35 +326,30 @@ void prefix(char* const* tokenContainer, char* exp, int inputSize)
 		// expression is all 1 string
 		strcpy(exp, tokenContainer[1]);
 		size_t expLen = strlen(exp);
-		while(expLen-- > 0)
+		while(expLen --> 0)
 		{
 			if(isnumber(exp[expLen]) == 0)
 			{
 				operator = isOperator(&exp[expLen]);
 				
-				// pop 2 do eval push to stack
 				num1 = pop();
 				num2 = pop();
 				
 				switch(operator)
 				{
 				case 1:
-					// add
 					r = num2 + num1;
 					printf("%d + %d = %d\n", num2, num1, r);
 					break;
 				case 2:
-					// sub
 					r = num2 - num1;
 					printf("%d - %d = %d\n", num2, num1, r);
 					break;
 				case 3:
-					// multi
 					r = num2 * num1;
 					printf("%d * %d = %d\n", num2, num1, r);
 					break;
 				case 4:
-					// div
 					r = num2 / num1;
 					printf("%d / %d = %d\n", num2, num1, r);
 					break;
@@ -371,7 +359,6 @@ void prefix(char* const* tokenContainer, char* exp, int inputSize)
 			}
 			else
 			{
-				// number
 				int num = (exp[expLen] - '0');
 				push(num);
 			}
